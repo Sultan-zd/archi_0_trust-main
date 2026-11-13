@@ -208,7 +208,7 @@ interface StationDecisionCount {
                 <td>{{ s.stationName }}</td>
                 <td><span class="badge" [class]="(s.decision ?? '').toLowerCase()">{{ s.decision }}</span></td>
                 <td>{{ s.finalRisk ?? '-' }}</td>
-                <td>{{ s.status }}</td>
+                <td><span class="badge" [class]="statusBadge(s.status)">{{ statusLabel(s.status) }}</span></td>
               </tr>
             } @empty {
               <tr><td colspan="6" class="empty">Aucune session.</td></tr>
@@ -396,5 +396,13 @@ export class AdminDashboardPage implements OnInit, OnDestroy {
     } catch (e) {
       this.error.set(errorMessage(e));
     }
+  }
+
+  protected statusLabel(status: string): string {
+    return ({ ACTIVE: 'En cours', PENDING_MFA: 'En attente MFA', DENIED: 'Refusée', STOPPED: 'Terminée' } as Record<string, string>)[status] ?? status;
+  }
+
+  protected statusBadge(status: string): string {
+    return ({ ACTIVE: 'ok', PENDING_MFA: 'mfa', DENIED: 'deny', STOPPED: '' } as Record<string, string>)[status] ?? '';
   }
 }

@@ -16,12 +16,13 @@ import { AuthService } from '../auth.service';
 import { DeviceService } from '../device.service';
 import { ChargeResult, Station } from '../models';
 import { errorMessage } from '../util';
+import { LpIcon } from '../landing/lp-icon';
 import { DecisionCard } from './decision-card';
 
 @Component({
   selector: 'app-stations',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FormsModule, RouterLink, DecisionCard],
+  imports: [FormsModule, RouterLink, DecisionCard, LpIcon],
   template: `
     @if (isAdmin) {
       <div class="page-header">
@@ -69,37 +70,36 @@ import { DecisionCard } from './decision-card';
       @for (s of filteredStations(); track s.id) {
         <article class="card station" [class.busy]="!s.available">
           <header>
-            <div class="station-header-left">
-              <div class="station-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
-              </div>
+            <span class="station-icon"><app-lp-icon name="station" /></span>
+            <div class="station-title">
               <h2>{{ s.name }}</h2>
+              <span>{{ s.city }}</span>
             </div>
-            <span class="badge" [class]="s.available ? 'allow' : 'deny'">{{ s.available ? 'Libre' : 'Occupée' }}</span>
+            <span class="status" [class.free]="s.available"><i></i>{{ s.available ? 'Libre' : 'Occupée' }}</span>
           </header>
-          <div class="station-info">
-            <p><strong>{{ s.powerKw }}</strong> kW</p>
-            <p>{{ s.city }}</p>
+          <div class="station-specs">
+            <div><span>Puissance</span><b>{{ s.powerKw }}<small> kW</small></b></div>
+            <div><span>Type</span><b>{{ s.powerKw >= 43 ? 'Rapide' : s.powerKw >= 11 ? 'Accélérée' : 'Normale' }}</b></div>
           </div>
           @if (s.activeUser) { <p class="user-line">Utilisée par <b>{{ s.activeUser }}</b></p> }
 
           @if (isAdmin) {
             @if (!s.available && s.canStop) {
-              <button class="danger small" (click)="stopStation(s)" [disabled]="busy() !== null">
+              <button class="danger" (click)="stopStation(s)" [disabled]="busy() !== null">
                 {{ busy() === s.id ? 'Arrêt…' : 'Arrêter la charge' }}
               </button>
             }
           } @else {
             @if (s.available) {
               <button class="primary" (click)="charge(s)" [disabled]="busy() !== null">
-                {{ busy() === s.id ? 'Évaluation…' : 'Démarrer la charge' }}
+                <app-lp-icon name="bolt" /> {{ busy() === s.id ? 'Évaluation Zero Trust…' : 'Démarrer la charge' }}
               </button>
             } @else if (s.canStop) {
               <button class="secondary" (click)="stopStation(s)" [disabled]="busy() !== null">
-                {{ busy() === s.id ? 'Arrêt…' : 'Arrêter la charge' }}
+                {{ busy() === s.id ? 'Arrêt…' : 'Arrêter ma charge' }}
               </button>
             } @else {
-              <button class="secondary" disabled>Utilisée par un autre utilisateur</button>
+              <button class="secondary" disabled>Utilisée par un autre conducteur</button>
             }
           }
         </article>
@@ -155,40 +155,7 @@ import { DecisionCard } from './decision-card';
     }
   `,
   styles: [`
-    .page-header { margin-bottom: 2rem; }
-    .page-header h1 { font-size: 1.8rem; margin-bottom: 0.25rem; }
-    .page-header .hint { font-size: 0.95rem; }
-
-    /* Statistiques */
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-      gap: 1rem;
-      margin-bottom: 1.5rem;
-    }
-    .stat {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 1.25rem;
-      text-align: center;
-      transition: transform 0.15s, box-shadow 0.15s;
-    }
-    .stat:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    }
-    .stat span {
-      display: block;
-      color: var(--muted);
-      font-size: 0.7rem;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      margin-bottom: 0.4rem;
-    }
-    .stat b { font-size: 1.75rem; font-weight: 700; }
-    .stat b.ok { color: var(--ok); }
-    .stat b.ko { color: var(--ko); }
+    .stats { margin-bottom: 20px; }
 
     /* Filtre */
     .filter-bar {
@@ -209,58 +176,35 @@ import { DecisionCard } from './decision-card';
       padding: 0.4rem 1rem;
       font-weight: 500;
     }
+    .filter-bar button { box-shadow: none; }
+    .filter-bar button:hover:not(:disabled) { transform: none; box-shadow: none; color: var(--text); }
     .filter-bar button.active {
-      background: var(--accent);
+      background: var(--text);
       color: white;
     }
 
     /* Cartes des bornes */
-    .station {
-      transition: transform 0.15s, box-shadow 0.15s;
-      border-left: 4px solid var(--ok);
-    }
-    .station:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 6px 20px rgba(0,0,0,0.2);
-    }
-    .station.busy {
-      border-left-color: var(--ko);
-    }
-    .station header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 0.75rem;
-    }
-    .station-header-left {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
-    .station-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: 10px;
-      background: var(--accent-soft);
-      color: var(--accent);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .station h2 { font-size: 1.05rem; margin: 0; }
-    .station-info {
-      display: flex;
-      gap: 1rem;
-      color: var(--muted);
-      font-size: 0.85rem;
-      margin-bottom: 0.75rem;
-    }
-    .station-info p { margin: 0; }
-    .user-line {
-      color: var(--muted);
-      font-size: 0.85rem;
-      margin-bottom: 0.75rem;
-    }
+    .station { display: flex; flex-direction: column; gap: 18px; transition: transform 0.25s var(--ease), box-shadow 0.25s var(--ease); }
+    .station:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+    .station header { display: flex; align-items: center; gap: 14px; margin: 0; }
+    .station-icon { width: 46px; height: 46px; flex-shrink: 0; border-radius: 14px; display: grid; place-items: center; font-size: 23px; color: #fff; background: var(--grad); box-shadow: 0 10px 20px -12px rgba(37, 99, 235, 0.8); }
+    .station.busy .station-icon { background: #e2e8f0; color: var(--muted); box-shadow: none; }
+    .station-title { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.3; }
+    .station-title h2 { font-size: 17px; margin: 0; }
+    .station-title span { font-size: 13.5px; color: var(--muted); }
+    .status { display: inline-flex; align-items: center; gap: 7px; padding: 4px 11px; border-radius: 999px; font-size: 12.5px; font-weight: 600; background: #fee2e2; color: #b91c1c; }
+    .status i { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+    .status.free { background: #d1fae5; color: #047857; }
+    .status.free i { animation: blip 2s ease-out infinite; }
+    .station-specs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .station-specs div { padding: 12px 14px; border-radius: 14px; background: var(--surface-2); border: 1px solid #eef2f7; }
+    .station-specs span { display: block; font-size: 12px; color: var(--muted); }
+    .station-specs b { font-size: 20px; letter-spacing: -0.02em; }
+    .station-specs small { font-size: 13px; font-weight: 600; color: var(--muted); }
+    .station button { width: 100%; margin-top: auto; }
+    .station button app-lp-icon { font-size: 17px; }
+    .user-line { color: var(--muted); font-size: 13.5px; margin: -6px 0 0; }
+    @keyframes blip { 0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.6); } 100% { box-shadow: 0 0 0 7px rgba(16, 185, 129, 0); } }
     .fleet-section {
       margin-top: 2rem;
       border-left: 4px solid var(--accent);

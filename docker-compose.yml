@@ -17,6 +17,9 @@ services:
       KEYCLOAK_ADMIN_PASSWORD: admin
     ports:
       - "8180:8080"
+    volumes:
+      # Thème de connexion AI-ZTB (active par scripts/setup_keycloak.py). En start-dev, les modifications sont visibles sans redémarrage.
+      - ./keycloak/themes/ztb:/opt/keycloak/themes/ztb:ro
 
   keycloak-init:
     <<: *python

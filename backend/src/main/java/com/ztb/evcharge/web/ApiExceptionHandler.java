@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClientResponseException;
+import org.springframework.web.server.ResponseStatusException;
 
 /** Traduit les erreurs des services amont (FastAPI, Keycloak) en reponses claires pour le frontend. */
 @RestControllerAdvice
@@ -38,6 +39,15 @@ public class ApiExceptionHandler {
         body.put("error", "service_unreachable");
         body.put("detail", "Un service requis (API Zero Trust ou Keycloak) est injoignable : " + ex.getMessage());
         return ResponseEntity.status(503).body(body);
+    }
+
+    /** Erreur metier levee par un controleur : le message (en francais) est renvoye au frontend. */
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<Map<String, Object>> status(ResponseStatusException ex) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("error", "request_rejected");
+        body.put("detail", ex.getReason() != null ? ex.getReason() : ex.getStatusCode().toString());
+        return ResponseEntity.status(ex.getStatusCode()).body(body);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

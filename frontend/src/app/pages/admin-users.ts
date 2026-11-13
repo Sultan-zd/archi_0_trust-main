@@ -15,6 +15,7 @@ import { errorMessage } from '../util';
   imports: [FormsModule],
   template: `
     <h1>Utilisateurs</h1>
+    <p class="hint">Comptes Keycloak et identités on-chain. Les secrets MFA ne sont jamais visibles ici.</p>
     @if (error()) { <div class="alert error">{{ error() }}</div> }
     @if (info()) { <div class="alert ok">{{ info() }}</div> }
 
@@ -26,7 +27,7 @@ import { errorMessage } from '../util';
             <tr>
               <td>{{ u.username }}</td>
               <td>{{ u.email ?? '-' }}</td>
-              <td>{{ u.role ?? '-' }}</td>
+              <td><span class="badge role">{{ roleLabel(u.role) }}</span></td>
               <td><span class="badge" [class]="u.enabled ? 'allow' : 'deny'">{{ u.enabled ? 'Actif' : 'Révoqué' }}</span></td>
               <td class="actions">
                 <button class="secondary small" (click)="resetMfa(u)" [disabled]="!u.enabled"
@@ -114,6 +115,10 @@ export class AdminUsersPage implements OnInit {
     } catch (e) {
       this.error.set(errorMessage(e));
     }
+  }
+
+  protected roleLabel(role: string | null): string {
+    return ({ User: 'Conducteur', Fleet: 'Flotte', Admin: 'Administrateur' } as Record<string, string>)[role ?? ''] ?? '-';
   }
 
   protected async resetMfa(user: KcUser): Promise<void> {

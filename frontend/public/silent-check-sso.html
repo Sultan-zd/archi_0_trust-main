@@ -1,0 +1,9 @@
+<!doctype html>
+<html lang="fr">
+  <body>
+    <!-- Verification silencieuse de la session Keycloak (keycloak-js, onLoad: 'check-sso'). -->
+    <script>
+      parent.postMessage(location.href, location.origin);
+    </script>
+  </body>
+</html>

@@ -1,0 +1,265 @@
+<!-- ============================================================ Navigation -->
+<header class="nav" [class.scrolled]="scrolled()" [class.open]="menuOpen()">
+  <div class="lp-container nav-inner">
+    <a class="brand" href="/" (click)="go('top', $event)" aria-label="AI-ZTB, retour en haut">
+      <app-brand-mark [size]="30" />
+      <span>AI-ZTB</span>
+    </a>
+
+    <nav class="nav-links" aria-label="Sections de la page">
+      @for (item of nav; track item.id) {
+        <a [href]="'#' + item.id" (click)="go(item.id, $event)">{{ item.label }}</a>
+      }
+    </nav>
+
+    <div class="nav-cta">
+      @if (auth.authenticated()) {
+        <button type="button" class="lp-btn lp-btn-primary lp-btn-sm" (click)="enter()">
+          Mon espace <app-lp-icon class="lp-arrow" name="arrow" />
+        </button>
+      } @else {
+        <button type="button" class="lp-btn lp-btn-ghost lp-btn-sm hide-sm" (click)="signIn()">Se connecter</button>
+        <a routerLink="/inscription" class="lp-btn lp-btn-primary lp-btn-sm">
+          Créer un compte <app-lp-icon class="lp-arrow" name="arrow" />
+        </a>
+      }
+      <button type="button" class="menu-toggle" (click)="menuOpen.set(!menuOpen())"
+              [attr.aria-expanded]="menuOpen()" aria-controls="mobile-menu" aria-label="Menu">
+        <app-lp-icon [name]="menuOpen() ? 'close' : 'menu'" />
+      </button>
+    </div>
+  </div>
+
+  <nav id="mobile-menu" class="mobile-menu" aria-label="Menu mobile">
+    @for (item of nav; track item.id) {
+      <a [href]="'#' + item.id" (click)="go(item.id, $event)">{{ item.label }}</a>
+    }
+  </nav>
+</header>
+
+<main id="top">
+  <!-- ============================================================ Hero -->
+  <section class="hero">
+    <div class="hero-bg" aria-hidden="true"></div>
+    <div class="lp-container hero-grid">
+      <div class="hero-copy">
+        <span class="hero-badge" appReveal>
+          <span class="hero-badge-dot"></span> Zero Trust · Intelligence artificielle · Blockchain
+        </span>
+        <h1 appReveal="80">
+          La recharge électrique,
+          <span class="lp-gradient-text">vérifiée à chaque seconde.</span>
+        </h1>
+        <p class="lead" appReveal="160">
+          AI-ZTB contrôle chaque demande de recharge : identité, score de risque calculé par l’IA,
+          politique d’accès on-chain et preuve infalsifiable. Les conducteurs rechargent sans friction,
+          les fraudeurs restent à quai.
+        </p>
+        <div class="hero-actions" appReveal="240">
+          @if (auth.authenticated()) {
+            <button type="button" class="lp-btn lp-btn-primary" (click)="enter()">
+              Ouvrir mon espace <app-lp-icon class="lp-arrow" name="arrow" />
+            </button>
+          } @else {
+            <a routerLink="/inscription" class="lp-btn lp-btn-primary">
+              Créer un compte <app-lp-icon class="lp-arrow" name="arrow" />
+            </a>
+          }
+          <button type="button" class="lp-btn lp-btn-ghost" (click)="go('simulateur')">Essayer le simulateur</button>
+        </div>
+        <ul class="hero-proof" appReveal="320">
+          <li><app-lp-icon name="check" /> MFA par QR code</li>
+          <li><app-lp-icon name="check" /> Anti-rejeu 30 s</li>
+          <li><app-lp-icon name="check" /> Journal infalsifiable</li>
+        </ul>
+      </div>
+      <app-hero-scene class="hero-visual" />
+    </div>
+  </section>
+
+  <!-- ============================================================ Technologies -->
+  <section class="stack" aria-label="Technologies utilisées">
+    <div class="lp-container stack-inner" appReveal>
+      <span>Construit sur des standards ouverts</span>
+      <ul>
+        <li>OpenID Connect</li><li>TOTP · RFC 6238</li><li>Solidity</li><li>Spring Boot</li><li>FastAPI</li><li>Angular</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ============================================================ Fonctionnement -->
+  <section id="fonctionnement" class="block">
+    <div class="lp-container">
+      <div class="lp-section-head" appReveal>
+        <span class="lp-eyebrow">Fonctionnement</span>
+        <h2>Quatre contrôles, à chaque demande.</h2>
+        <p>Même connecté, personne n’obtient une recharge sur parole. Chaque demande traverse la même chaîne de vérification.</p>
+      </div>
+
+      <ol class="pipeline">
+        @for (step of pipeline; track step.n; let i = $index) {
+          <li class="pipe-card" [appReveal]="i * 110">
+            <div class="pipe-top">
+              <span class="pipe-icon"><app-lp-icon [name]="['id', 'cpu', 'contract', 'proof'][i]" /></span>
+              <span class="pipe-n">{{ step.n }}</span>
+            </div>
+            <h3>{{ step.title }}</h3>
+            <span class="pipe-tag">{{ step.tag }}</span>
+            <p>{{ step.text }}</p>
+          </li>
+        }
+      </ol>
+
+      <div class="outcomes" appReveal>
+        <div class="outcome allow"><b>ALLOW</b><span>Risque faible : la charge démarre.</span></div>
+        <div class="outcome mfa"><b>MFA</b><span>Risque modéré : code à 6 chiffres demandé.</span></div>
+        <div class="outcome deny"><b>DENY</b><span>Risque élevé : refus expliqué et journalisé.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ Simulateur -->
+  <section id="simulateur" class="block block-tint">
+    <div class="lp-container">
+      <div class="lp-section-head" appReveal>
+        <span class="lp-eyebrow">Simulateur interactif</span>
+        <h2>Mettez le moteur de décision à l’épreuve.</h2>
+        <p>Changez l’appareil, le lieu ou le trafic réseau et observez le score de risque et la décision évoluer en direct.</p>
+      </div>
+      <app-decision-demo appReveal />
+    </div>
+  </section>
+
+  <!-- ============================================================ Sécurité -->
+  <section id="securite" class="block">
+    <div class="lp-container">
+      <div class="lp-section-head" appReveal>
+        <span class="lp-eyebrow">Sécurité</span>
+        <h2>Une défense en profondeur, pensée pour la recharge.</h2>
+        <p>Chaque couche couvre une menace précise, et toutes laissent une trace vérifiable.</p>
+      </div>
+
+      <div class="bento">
+        @for (f of features; track f.title; let i = $index) {
+          <article class="feature" [class.wide]="f.wide" [appReveal]="(i % 3) * 90">
+            <span class="feature-icon"><app-lp-icon [name]="f.icon" /></span>
+            <h3>{{ f.title }}</h3>
+            <p>{{ f.text }}</p>
+            @if (f.icon === 'radar') {
+              <div class="viz-radar" aria-hidden="true"><i></i><i></i><i></i><span class="sweep"></span><b></b></div>
+            }
+            @if (f.icon === 'ledger') {
+              <div class="viz-chain" aria-hidden="true">
+                @for (b of [18424, 18425, 18426, 18427]; track b) {
+                  <span><small>Bloc</small>#{{ b }}</span>
+                }
+              </div>
+            }
+          </article>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ Chiffres -->
+  <section class="kpis" aria-label="Chiffres clés">
+    <div class="lp-container kpis-grid">
+      @for (s of stats; track s.label; let i = $index) {
+        <div class="kpi" [appReveal]="i * 90"><b class="lp-gradient-text">{{ s.value }}</b><span>{{ s.label }}</span></div>
+      }
+    </div>
+  </section>
+
+  <!-- ============================================================ Espaces -->
+  <section id="espaces" class="block">
+    <div class="lp-container">
+      <div class="lp-section-head" appReveal>
+        <span class="lp-eyebrow">Espaces</span>
+        <h2>Un espace taillé pour chaque rôle.</h2>
+        <p>Le principe du moindre privilège, appliqué jusque dans l’interface.</p>
+      </div>
+      <div class="spaces">
+        @for (s of spaces; track s.role; let i = $index) {
+          <article class="space" [class.featured]="s.featured" [appReveal]="i * 110">
+            <span class="space-icon"><app-lp-icon [name]="s.icon" /></span>
+            <h3>{{ s.role }}</h3>
+            <p>{{ s.text }}</p>
+            <ul>
+              @for (p of s.points; track p) { <li><app-lp-icon name="check" />{{ p }}</li> }
+            </ul>
+          </article>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ FAQ -->
+  <section id="faq" class="block block-tint">
+    <div class="lp-container faq-grid">
+      <div class="lp-section-head faq-head" appReveal>
+        <span class="lp-eyebrow">Questions fréquentes</span>
+        <h2>Tout ce qu’il faut savoir.</h2>
+        <p>Une autre question ? Le README du projet détaille l’architecture et les scénarios de test.</p>
+      </div>
+      <div class="faq" appReveal="100">
+        @for (item of faq; track item.q; let first = $first) {
+          <details [open]="first">
+            <summary>{{ item.q }}<app-lp-icon name="plus" /></summary>
+            <p>{{ item.a }}</p>
+          </details>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ Appel à l'action -->
+  <section class="cta-wrap">
+    <div class="lp-container">
+      <div class="cta" appReveal>
+        <div class="cta-glow" aria-hidden="true"></div>
+        <app-brand-mark [size]="52" />
+        <h2>Prêt à sécuriser chaque recharge ?</h2>
+        <p>Créez votre compte en une minute, activez votre MFA et démarrez votre première charge sécurisée.</p>
+        @if (auth.authenticated()) {
+          <button type="button" class="lp-btn lp-btn-light" (click)="enter()">
+            Ouvrir mon espace <app-lp-icon class="lp-arrow" name="arrow" />
+          </button>
+        } @else {
+          <div class="cta-actions">
+            <a routerLink="/inscription" class="lp-btn lp-btn-light">Créer un compte <app-lp-icon class="lp-arrow" name="arrow" /></a>
+            <button type="button" class="lp-btn lp-btn-outline-light" (click)="signIn()">Se connecter</button>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- ============================================================ Pied de page -->
+<footer class="footer">
+  <div class="lp-container footer-inner">
+    <div class="footer-brand">
+      <a class="brand" href="/" (click)="go('top', $event)"><app-brand-mark [size]="26" /><span>AI-ZTB</span></a>
+      <p>Architecture Zero Trust pour la recharge de véhicules électriques.</p>
+    </div>
+    <nav class="footer-links" aria-label="Pied de page">
+      <div>
+        <b>Produit</b>
+        @for (item of nav.slice(0, 3); track item.id) {
+          <a [href]="'#' + item.id" (click)="go(item.id, $event)">{{ item.label }}</a>
+        }
+      </div>
+      <div>
+        <b>Plateforme</b>
+        @if (!auth.authenticated()) { <a routerLink="/inscription">Créer un compte</a> }
+        <a href="/stations" (click)="$event.preventDefault(); enter()">{{ auth.authenticated() ? 'Mon espace' : 'Se connecter' }}</a>
+        <a [href]="'#espaces'" (click)="go('espaces', $event)">Espaces</a>
+        <a [href]="'#faq'" (click)="go('faq', $event)">FAQ</a>
+      </div>
+    </nav>
+  </div>
+  <div class="lp-container footer-bottom">
+    <span>© {{ year }} AI-ZTB · Projet de démonstration</span>
+    <span>Identité · IA · Blockchain</span>
+  </div>
+</footer>

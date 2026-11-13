@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { ApiService } from '../api.service';
 import { MfaEnrollment, MfaStatus } from '../models';
 import { errorMessage } from '../util';
@@ -96,6 +97,7 @@ import { errorMessage } from '../util';
 })
 export class MfaPage implements OnInit {
   private readonly api = inject(ApiService);
+  private readonly route = inject(ActivatedRoute);
 
   protected readonly status = signal<MfaStatus | null>(null);
   protected readonly enrollment = signal<MfaEnrollment | null>(null);
@@ -110,6 +112,10 @@ export class MfaPage implements OnInit {
   protected readonly groupedSecret = computed(() => this.enrollment()?.secret.match(/.{1,4}/g)?.join(' ') ?? '');
 
   ngOnInit(): void {
+    // Arrivée juste après l'inscription : dernière étape de l'accueil.
+    if (this.route.snapshot.queryParamMap.has('bienvenue')) {
+      this.info.set('Bienvenue ! Votre compte est prêt. Dernière étape : activez la MFA pour sécuriser vos recharges.');
+    }
     void this.load();
   }
 

@@ -5,7 +5,12 @@ import { Role } from './models';
 
 const ROLE_ORDER: Role[] = ['Admin', 'Fleet', 'User'];
 
-/** Authentification via Keycloak (flux Authorization Code + PKCE). Aucun mot de passe ne transite par l'application. */
+/**
+ * Authentification via Keycloak (flux Authorization Code + PKCE). Aucun mot de passe ne transite par l'application.
+ *
+ * La page d'accueil est publique : au demarrage, on verifie seulement s'il existe deja une session Keycloak
+ * (check-sso, sans redirection). La connexion n'est exigee que pour les routes de l'espace prive (authGuard).
+ */
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly kc = new Keycloak({
@@ -13,26 +18,50 @@ export class AuthService {
     realm: CONFIG.keycloak.realm,
     clientId: CONFIG.keycloak.clientId,
   });
+  private ready?: Promise<boolean>;
 
+  readonly authenticated = signal(false);
+  /** true une fois la verification de session terminee (connecte ou non). */
+  readonly checked = signal(false);
   readonly username = signal('');
   readonly roles = signal<string[]>([]);
   /** Role le plus eleve de l'utilisateur. */
   readonly role = computed<Role | null>(() => ROLE_ORDER.find((r) => this.roles().includes(r)) ?? null);
 
-  /** Appele au demarrage : redirige vers la page de connexion Keycloak si l'utilisateur n'est pas connecte. */
-  async init(): Promise<void> {
-    const authenticated = await this.kc.init({
-      onLoad: 'login-required',
-      pkceMethod: 'S256',
-      checkLoginIframe: false,
-    });
-    if (!authenticated) return;
-    this.username.set(this.kc.tokenParsed?.['preferred_username'] ?? '');
-    this.roles.set(this.kc.tokenParsed?.realm_access?.roles ?? []);
+  /** Lance (une seule fois) la verification de session. Ne redirige jamais : renvoie false si personne n'est connecte. */
+  whenReady(): Promise<boolean> {
+    this.ready ??= this.kc
+      .init({
+        onLoad: 'check-sso',
+        silentCheckSsoRedirectUri: `${window.location.origin}/silent-check-sso.html`,
+        pkceMethod: 'S256',
+        checkLoginIframe: false,
+      })
+      .then((authenticated) => {
+        if (authenticated) {
+          this.username.set(this.kc.tokenParsed?.['preferred_username'] ?? '');
+          this.roles.set(this.kc.tokenParsed?.realm_access?.roles ?? []);
+        }
+        this.authenticated.set(authenticated);
+        return authenticated;
+      })
+      .catch((err) => {
+        // Keycloak injoignable : la page publique reste utilisable, l'espace prive demandera une connexion.
+        console.warn('Verification de session Keycloak impossible', err);
+        return false;
+      })
+      .finally(() => this.checked.set(true));
+    return this.ready;
+  }
+
+  /** Redirige vers la page de connexion Keycloak (identifiant pré-rempli si fourni), puis revient sur `path`. */
+  login(path = '/stations', loginHint?: string): Promise<void> {
+    return this.kc.login({ redirectUri: window.location.origin + path, loginHint });
   }
 
   /** Jeton d'acces valide (renouvele s'il expire dans moins de 30 s). */
   async freshToken(): Promise<string> {
+    await this.whenReady();
     try {
       await this.kc.updateToken(30);
     } catch {
@@ -48,4 +77,10 @@ export class AuthService {
   logout(): void {
     this.kc.logout({ redirectUri: window.location.origin });
   }
+}
+
+/** true si l'URL courante est le retour de la page de connexion Keycloak (code d'autorisation dans le fragment). */
+export function isLoginCallback(): boolean {
+  const hash = window.location.hash;
+  return hash.includes('state=') && (hash.includes('code=') || hash.includes('error='));
 }

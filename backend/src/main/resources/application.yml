@@ -31,5 +31,9 @@ app:
     # Flux reseau envoye au moteur IA (vrai flux CICEVSE2024 du jeu de demonstration).
     flow-sample: ${ZTB_FLOW_SAMPLE:Benign}
     flow-index: ${ZTB_FLOW_INDEX:0}
+  registration:
+    # Inscriptions publiques autorisees par heure (par adresse IP, puis au total).
+    max-per-client: ${ZTB_REGISTRATION_PER_CLIENT:20}
+    max-global: ${ZTB_REGISTRATION_GLOBAL:200}
   cors:
     allowed-origins: ${CORS_ORIGINS:http://localhost:4200,http://127.0.0.1:4200}
