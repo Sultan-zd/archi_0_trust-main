@@ -1,0 +1,19 @@
+# Dependances d'execution de l'API Zero Trust (image Docker).
+# scikit-learn et xgboost sont figes aux versions qui ont servi a entrainer les modeles de models/*.joblib.
+fastapi
+uvicorn[standard]
+pydantic
+python-dotenv
+requests
+redis
+PyJWT
+cryptography
+pyotp
+web3
+numpy
+pandas
+joblib
+scikit-learn==1.7.2
+xgboost-cpu==3.4.1
+scapy
+qrcode

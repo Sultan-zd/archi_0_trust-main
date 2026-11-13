@@ -1,0 +1,176 @@
+# AI-ZTB : toute la chaine dans Docker.      Lancement : docker compose up --build
+# Guide : docs/DOCKER.md
+name: ztb
+
+x-python: &python
+  image: ztb-python
+
+x-issuers: &issuers "http://127.0.0.1:8180/realms/ztb,http://localhost:8180/realms/ztb,http://127.0.0.1:8080/realms/ztb,http://localhost:8080/realms/ztb,http://keycloak:8080/realms/ztb"
+
+services:
+  # ------------------------------------------------------------------ identite
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.0
+    command: start-dev
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    ports:
+      - "8180:8080"
+
+  keycloak-init:
+    <<: *python
+    pull_policy: never
+    command: ["sh", "-c", "python scripts/setup_keycloak.py && python scripts/disable_totp.py"]
+    environment:
+      KEYCLOAK_URL: http://keycloak:8080
+    depends_on:
+      - keycloak
+    restart: "on-failure:5"
+
+  # ------------------------------------------------------------------ blockchain
+  chain:
+    build: ./blockchain
+    image: ztb-chain
+    environment:
+      HARDHAT_RPC_URL: http://127.0.0.1:8545
+    ports:
+      - "8545:8545"
+    healthcheck:
+      test: ["CMD", "node", "docker/rpc-ready.mjs"]
+      interval: 5s
+      timeout: 5s
+      retries: 40
+
+  deploy:
+    build: ./blockchain
+    image: ztb-chain
+    pull_policy: never
+    command: ["sh", "docker/deploy.sh"]
+    environment:
+      HARDHAT_RPC_URL: http://chain:8545
+    volumes:
+      - deployments:/app/deployments
+    depends_on:
+      chain:
+        condition: service_healthy
+
+  # ------------------------------------------------------------------ moteur Zero Trust
+  redis:
+    image: redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  seed:
+    <<: *python
+    pull_policy: never
+    command: ["python", "-m", "scripts.seed_identities"]
+    environment: &zt-env
+      CHAIN_RPC_URL: http://chain:8545
+      DEPLOYMENTS_FILE: /deployments/localhost.json
+      USERS_FILE: /state/users.json
+      EVIDENCE_DIR: /state/evidence
+      ADMIN_API_KEY: ${ADMIN_API_KEY:-change-me}
+      KEYCLOAK_URL: http://keycloak:8080
+      KEYCLOAK_EXTRA_ISSUERS: *issuers
+      REDIS_HOST: redis
+    volumes:
+      - deployments:/deployments:ro
+      - state:/state
+    depends_on:
+      deploy:
+        condition: service_completed_successfully
+
+  api:
+    <<: *python
+    build:
+      context: .
+      dockerfile: docker/python.Dockerfile
+    environment: *zt-env
+    ports:
+      - "8000:8000"
+    volumes:
+      - deployments:/deployments:ro
+      - state:/state
+      - ./reports:/app/reports
+    depends_on:
+      seed:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+      keycloak:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request as u; u.urlopen('http://127.0.0.1:8000/health', timeout=4)"]
+      interval: 10s
+      timeout: 6s
+      retries: 20
+      start_period: 15s
+
+  sniffer:
+    <<: *python
+    pull_policy: never
+    network_mode: "service:api"
+    cap_add: [NET_RAW, NET_ADMIN]
+    command: ["python", "scripts/sniffer.py"]
+    environment:
+      REDIS_HOST: redis
+    depends_on:
+      api:
+        condition: service_healthy
+
+  attacker:
+    build:
+      context: .
+      dockerfile: docker/attacker.Dockerfile
+    network_mode: "service:api"
+    cap_add: [NET_RAW, NET_ADMIN]
+    profiles: ["attack"]
+    environment:
+      ATTACK_SECONDS: ${ATTACK_SECONDS:-20}
+
+  # ------------------------------------------------------------------ application
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: ztb
+      POSTGRES_USER: ztb
+      POSTGRES_PASSWORD: ztb
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ztb -d ztb"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  backend:
+    build: ./backend
+    environment:
+      ZTB_DB_URL: jdbc:postgresql://postgres:5432/ztb
+      KEYCLOAK_URL: http://keycloak:8080
+      KEYCLOAK_ALLOWED_ISSUERS: *issuers
+      FASTAPI_URL: http://api:8000
+      ADMIN_API_KEY: ${ADMIN_API_KEY:-change-me}
+    ports:
+      - "8081:8081"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      api:
+        condition: service_healthy
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "4200:80"
+    depends_on:
+      - backend
+
+volumes:
+  deployments:
+  state:
+  pgdata:

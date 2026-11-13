@@ -1,0 +1,9 @@
+model,type,accuracy,balanced_accuracy,precision_attack,recall_attack,f1_attack,recall_benign,roc_auc,val_balanced_accuracy,accuracy_multiclass,f1_macro_multiclass,train_seconds,latency_ms_one_request
+Régression logistique,supervise,0.9998,0.9843,0.9999,0.9998,0.9999,0.9688,0.9815,0.9999,0.9992,0.979,8.7849,1.3629
+Random Forest,supervise,0.9998,0.9531,0.9998,0.9999,0.9999,0.9062,1.0,0.9999,0.9989,0.9773,2.0335,2.7579
+Random Forest + SMOTE,supervise,0.9998,0.9687,0.9999,0.9999,0.9999,0.9375,1.0,0.9999,0.9989,0.983,1.9357,2.6404
+XGBoost,supervise,0.9999,0.9843,0.9999,0.9999,0.9999,0.9688,1.0,0.9999,0.9995,0.9891,3.1385,2.5596
+Isolation Forest,non supervise,0.6754,0.8062,0.9998,0.675,0.8059,0.9375,0.9406,,,,0.097,3.2274
+Autoencoder,non supervise,0.3329,0.5723,0.999,0.3321,0.4985,0.8125,0.8333,,,,0.6073,0.9311
+Fusion poids fixes (RF+IF+AE),fusion,0.9998,0.9531,0.9998,1.0,0.9999,0.9062,1.0,,,,,
+Fusion apprise (RF+IF+AE),fusion,0.9998,0.9531,0.9998,0.9999,0.9999,0.9062,1.0,,,,,

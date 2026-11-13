@@ -1,0 +1,82 @@
+<div class="page-header">
+  <h1>Espace flotte</h1>
+  <p class="hint">Gérez et supervisez les bornes de votre flotte.</p>
+</div>
+
+@if (error()) {
+  <div class="alert error">{{ error() }}</div>
+}
+
+@if (!accessGranted()) {
+  <div class="unlock-card">
+    <div class="unlock-icon">
+      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    </div>
+    <h2>Accès réservé aux gestionnaires de flotte</h2>
+    <p>Déverrouillez votre espace pour superviser et gérer les bornes de votre flotte.</p>
+    <button class="unlock-button" (click)="requestAccess()" [disabled]="busy()">
+      {{ buttonLabel() }}
+    </button>
+    @if (accessDenied()) {
+      <div class="alert error" style="margin-top: 1.5rem;">Accès refusé. Vous n'avez pas les droits nécessaires.</div>
+    }
+  </div>
+} @else {
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon blue">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+      </div>
+      <div class="stat-content">
+        <span>Total bornes</span>
+        <b>{{ stations().length }}</b>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon green">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <div class="stat-content">
+        <span>Libres</span>
+        <b class="ok">{{ availableCount() }}</b>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon red">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      </div>
+      <div class="stat-content">
+        <span>Occupées</span>
+        <b class="ko">{{ busyCount() }}</b>
+      </div>
+    </div>
+  </div>
+
+  <div class="stations-grid">
+    @for (s of stations(); track s.id) {
+      <article class="station-card" [class.busy]="!s.available">
+        <div class="station-header">
+          <div class="station-name">{{ s.name }}</div>
+          <span class="badge" [class]="s.available ? 'allow' : 'deny'">{{ s.available ? 'Libre' : 'Occupée' }}</span>
+        </div>
+        <div class="station-meta">
+          <span>{{ s.city }}</span>
+          <span>{{ s.powerKw }} kW</span>
+        </div>
+        @if (s.activeUser) {
+          <div class="station-user">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            {{ s.activeUser }}
+          </div>
+        }
+        @if (!s.available && s.canStop) {
+          <button class="stop-button" (click)="stop(s)" [disabled]="stopBusy() !== null">
+            {{ stopButtonLabel(s.id) }}
+          </button>
+        }
+      </article>
+    } @empty {
+      <p class="hint">Aucune borne dans votre flotte.</p>
+    }
+  </div>
+}

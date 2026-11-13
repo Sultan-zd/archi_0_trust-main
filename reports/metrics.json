@@ -1,0 +1,255 @@
+{
+  "models": [
+    {
+      "model": "Régression logistique",
+      "type": "supervise",
+      "accuracy": 0.9997843316978487,
+      "balanced_accuracy": 0.9842939846070753,
+      "precision_attack": 0.9999459839032031,
+      "recall_attack": 0.9998379692141507,
+      "f1_attack": 0.9998919736415686,
+      "recall_benign": 0.96875,
+      "roc_auc": 0.9814846070753444,
+      "val_balanced_accuracy": 0.9999459926550011,
+      "accuracy_multiclass": 0.9991912438669327,
+      "f1_macro_multiclass": 0.979001355261934,
+      "train_seconds": 8.784896816000014,
+      "latency_ms_one_request": 1.362931190000154,
+      "confusion_matrix": [
+        [
+          31,
+          1,
+          0
+        ],
+        [
+          0,
+          14990,
+          10
+        ],
+        [
+          3,
+          1,
+          3511
+        ]
+      ]
+    },
+    {
+      "model": "Random Forest",
+      "type": "supervise",
+      "accuracy": 0.9997843316978487,
+      "balanced_accuracy": 0.9530979948690251,
+      "precision_attack": 0.9998379867149106,
+      "recall_attack": 0.9999459897380503,
+      "f1_attack": 0.9998919853100021,
+      "recall_benign": 0.90625,
+      "roc_auc": 0.9999949365379422,
+      "val_balanced_accuracy": 0.9999459926550011,
+      "accuracy_multiclass": 0.9988677414137057,
+      "f1_macro_multiclass": 0.9773463202505681,
+      "train_seconds": 2.0335154430000557,
+      "latency_ms_one_request": 2.7578895850001572,
+      "confusion_matrix": [
+        [
+          29,
+          1,
+          2
+        ],
+        [
+          0,
+          14992,
+          8
+        ],
+        [
+          1,
+          9,
+          3505
+        ]
+      ]
+    },
+    {
+      "model": "Random Forest + SMOTE",
+      "type": "supervise",
+      "accuracy": 0.9998382487733866,
+      "balanced_accuracy": 0.9687229948690251,
+      "precision_attack": 0.9998919853100021,
+      "recall_attack": 0.9999459897380503,
+      "f1_attack": 0.9999189867948476,
+      "recall_benign": 0.9375,
+      "roc_auc": 0.9999949365379422,
+      "val_balanced_accuracy": 0.9999189889825016,
+      "accuracy_multiclass": 0.9989216584892435,
+      "f1_macro_multiclass": 0.9830259683893855,
+      "train_seconds": 1.935730000000035,
+      "latency_ms_one_request": 2.6403997750003327,
+      "confusion_matrix": [
+        [
+          30,
+          1,
+          1
+        ],
+        [
+          0,
+          14992,
+          8
+        ],
+        [
+          1,
+          9,
+          3505
+        ]
+      ]
+    },
+    {
+      "model": "XGBoost",
+      "type": "supervise",
+      "accuracy": 0.9998921658489244,
+      "balanced_accuracy": 0.9843479948690251,
+      "precision_attack": 0.9999459897380503,
+      "recall_attack": 0.9999459897380503,
+      "f1_attack": 0.9999459897380503,
+      "recall_benign": 0.96875,
+      "roc_auc": 0.9999983121793141,
+      "val_balanced_accuracy": 0.9999189889825016,
+      "accuracy_multiclass": 0.9994608292446218,
+      "f1_macro_multiclass": 0.9890569919613016,
+      "train_seconds": 3.1384919100000843,
+      "latency_ms_one_request": 2.559574199999588,
+      "confusion_matrix": [
+        [
+          31,
+          1,
+          0
+        ],
+        [
+          0,
+          14992,
+          8
+        ],
+        [
+          1,
+          0,
+          3514
+        ]
+      ]
+    },
+    {
+      "model": "Isolation Forest",
+      "type": "non supervise",
+      "accuracy": 0.6754192052623066,
+      "balanced_accuracy": 0.8062331217931407,
+      "precision_attack": 0.9998399871989759,
+      "recall_attack": 0.6749662435862814,
+      "f1_attack": 0.8058941123363642,
+      "recall_benign": 0.9375,
+      "roc_auc": 0.9406275317310289,
+      "train_seconds": 0.09695476699994288,
+      "latency_ms_one_request": 3.227367399999821,
+      "confusion_matrix": [
+        [
+          30,
+          2
+        ],
+        [
+          6018,
+          12497
+        ]
+      ]
+    },
+    {
+      "model": "Autoencoder",
+      "type": "non supervise",
+      "accuracy": 0.332937941446056,
+      "balanced_accuracy": 0.5723045503645693,
+      "precision_attack": 0.999025182778229,
+      "recall_attack": 0.3321091007291385,
+      "f1_attack": 0.49850020267531414,
+      "recall_benign": 0.8125,
+      "roc_auc": 0.8333428976505536,
+      "train_seconds": 0.6072657419999814,
+      "latency_ms_one_request": 0.9310847649999232,
+      "confusion_matrix": [
+        [
+          26,
+          6
+        ],
+        [
+          12366,
+          6149
+        ]
+      ]
+    },
+    {
+      "model": "Fusion poids fixes (RF+IF+AE)",
+      "type": "fusion",
+      "accuracy": 0.9998382487733866,
+      "balanced_accuracy": 0.953125,
+      "precision_attack": 0.999837995463873,
+      "recall_attack": 1.0,
+      "f1_attack": 0.9999189911700376,
+      "recall_benign": 0.90625,
+      "roc_auc": 0.9999949365379422,
+      "confusion_matrix": [
+        [
+          29,
+          3
+        ],
+        [
+          0,
+          18515
+        ]
+      ]
+    },
+    {
+      "model": "Fusion apprise (RF+IF+AE)",
+      "type": "fusion",
+      "accuracy": 0.9997843316978487,
+      "balanced_accuracy": 0.9530979948690251,
+      "precision_attack": 0.9998379867149106,
+      "recall_attack": 0.9999459897380503,
+      "f1_attack": 0.9998919853100021,
+      "recall_benign": 0.90625,
+      "roc_auc": 0.9999949365379422,
+      "confusion_matrix": [
+        [
+          29,
+          3
+        ],
+        [
+          1,
+          18514
+        ]
+      ]
+    }
+  ],
+  "zero_trust_decisions": {
+    "thresholds": {
+      "mfa": 30,
+      "deny": 60
+    },
+    "n_test_attack": 18515,
+    "n_test_benign": 32,
+    "FAR_allow_only": 0.0,
+    "FAR_allow_or_mfa": 5.4010261949770455e-05,
+    "FRR_deny": 0.09375,
+    "benign_mfa_rate": 0.0,
+    "decision_accuracy": 0.9997843316978487,
+    "decision_counts_attack": {
+      "DENY": 18514,
+      "MFA": 1
+    },
+    "decision_counts_benign": {
+      "ALLOW": 29,
+      "DENY": 3
+    },
+    "fusion_weights_learned": {
+      "rf": 14.474,
+      "iforest": 0.147,
+      "autoencoder": -0.753
+    },
+    "supervised_component": "Random Forest",
+    "FRR_deny_wilson95": [
+      0.0324,
+      0.2422
+    ]
+  }
+}

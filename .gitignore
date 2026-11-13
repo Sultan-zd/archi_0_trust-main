@@ -1,0 +1,41 @@
+# ---------------------------------------------------------------- secrets locaux
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# ---------------------------------------------------------------- Python
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# ---------------------------------------------------------------- Node / Angular / Hardhat
+node_modules/
+frontend/.angular/
+frontend/dist/
+blockchain/artifacts/
+blockchain/cache/
+blockchain/types/
+
+# ---------------------------------------------------------------- Java / Maven
+backend/target/
+
+# ---------------------------------------------------------------- donnees generees ou sensibles
+data/raw/
+data/users.json
+data/evidence/
+data/processed/splits.joblib
+# adresses des contrats, regenerees a chaque deploiement
+deployments/
+# rapport des scenarios automatises (regenere a chaque execution)
+reports/scenarios.json
+
+# ---------------------------------------------------------------- editeurs et systeme
+.idea/
+*.iml
+.DS_Store
+Thumbs.db
+desktop.ini
+*.log

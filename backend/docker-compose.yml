@@ -1,0 +1,17 @@
+# Base PostgreSQL du backend Spring Boot (bornes et historique des charges).
+# Lancement : docker compose up -d   (depuis le dossier backend/)
+services:
+  postgres:
+    image: postgres:17
+    container_name: ztb-postgres
+    environment:
+      POSTGRES_DB: ztb
+      POSTGRES_USER: ztb
+      POSTGRES_PASSWORD: ztb
+    ports:
+      - "5432:5432"
+    volumes:
+      - ztb-pgdata:/var/lib/postgresql/data
+
+volumes:
+  ztb-pgdata:

@@ -1,0 +1,17 @@
+# Contexte de build de l'image Python (la racine du depot) : on n'envoie que le necessaire.
+.git
+.venv
+**/__pycache__
+**/*.pyc
+**/node_modules
+frontend
+backend
+blockchain
+deployments
+reports
+docs
+data/raw
+data/evidence
+data/users.json
+data/processed/splits.joblib
+.env

@@ -1,0 +1,35 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: evcharge-backend
+  datasource:
+    url: ${ZTB_DB_URL:jdbc:postgresql://localhost:5432/ztb}
+    username: ${ZTB_DB_USER:ztb}
+    password: ${ZTB_DB_PASSWORD:ztb}
+  jpa:
+    open-in-view: false
+    hibernate:
+      # Projet de demonstration : le schema est cree/mis a jour automatiquement.
+      ddl-auto: update
+
+app:
+  keycloak:
+    # Utiliser 127.0.0.1 (et non localhost) partout, comme dans api/security.py de FastAPI.
+    base-url: ${KEYCLOAK_URL:http://127.0.0.1:8080}
+    realm: ${KEYCLOAK_REALM:ztb}
+    # Compte administrateur du realm "master", utilise uniquement pour creer/desactiver des utilisateurs.
+    admin-username: ${KEYCLOAK_ADMIN_USER:admin}
+    admin-password: ${KEYCLOAK_ADMIN_PASSWORD:admin}
+    # Issuers acceptes dans le JWT (meme Keycloak joint par 127.0.0.1 ou localhost).
+    allowed-issuers: ${KEYCLOAK_ALLOWED_ISSUERS:http://127.0.0.1:8080/realms/ztb,http://localhost:8080/realms/ztb}
+  fastapi:
+    base-url: ${FASTAPI_URL:http://127.0.0.1:8000}
+    # Doit correspondre a ADMIN_API_KEY dans le .env de l'API FastAPI.
+    admin-api-key: ${ADMIN_API_KEY:change-me}
+    # Flux reseau envoye au moteur IA (vrai flux CICEVSE2024 du jeu de demonstration).
+    flow-sample: ${ZTB_FLOW_SAMPLE:Benign}
+    flow-index: ${ZTB_FLOW_INDEX:0}
+  cors:
+    allowed-origins: ${CORS_ORIGINS:http://localhost:4200,http://127.0.0.1:4200}
