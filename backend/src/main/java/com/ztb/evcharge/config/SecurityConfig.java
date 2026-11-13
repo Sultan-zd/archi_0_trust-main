@@ -40,6 +40,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/health").permitAll()
+                        // Inscription en libre-service (role User impose, debit limite : RegistrationController).
+                        .requestMatchers(HttpMethod.POST, "/api/public/register").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("Admin")
                         // L'Admin supervise : il peut arreter une charge, mais pas en demarrer une.
                         .requestMatchers(HttpMethod.POST, "/api/stations/*/charge").hasAnyRole("User", "Fleet")

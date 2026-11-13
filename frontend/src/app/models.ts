@@ -157,6 +157,17 @@ export interface CreatedUser {
   txHash: string;
 }
 
+/** Inscription en libre-service (POST /api/public/register). Le rôle est toujours « User ». */
+export interface RegistrationRequest {
+  username: string;
+  email: string;
+  password: string;
+  homeLocation?: string;
+  acceptTerms: boolean;
+  /** Piège à robots : doit rester vide. */
+  website?: string;
+}
+
 /** État de la MFA de l'utilisateur connecté (GET /api/mfa/status). Ne contient jamais le secret. */
 export interface MfaStatus {
   user: string;

@@ -68,6 +68,30 @@ Ouvrez le navigateur sur :
 
 - `http://localhost:4200`
 
+La page d'accueil publique présente le produit (fonctionnement, simulateur de décision, sécurité). Cliquez sur **Se connecter** pour utiliser un compte de démonstration, ou sur **Créer un compte** ; l'espace privé (`/stations`, `/history`, `/admin`…) exige une connexion.
+
+### Créer un compte (`/inscription`)
+
+Tout visiteur peut créer un compte. Après l'inscription, il se connecte (identifiant pré-rempli) et arrive directement sur l'activation de la MFA par QR code.
+
+- Le compte est créé dans Keycloak **et** enregistré sur la blockchain (avec annulation automatique si l'une des deux étapes échoue).
+- Le rôle est toujours **User** : un rôle envoyé par le client est ignoré. Les rôles Fleet et Admin restent attribués par un administrateur.
+- Mot de passe : 10 caractères minimum, au moins une lettre et un chiffre, sans l'identifiant.
+- Protection contre les abus : piège à robots et limite d'inscriptions par heure (`ZTB_REGISTRATION_PER_CLIENT`, 20 par défaut, et `ZTB_REGISTRATION_GLOBAL`, 200 par défaut). Derrière Docker Desktop ou un proxy, tous les visiteurs peuvent partager la même adresse IP.
+- Aucun e-mail de confirmation n'est envoyé (pas de serveur SMTP configuré).
+
+### Page de connexion
+
+La page de connexion reste servie par Keycloak (le mot de passe ne transite jamais par l'application), avec le thème `ztb` du dossier `keycloak/themes/ztb/`, monté dans le conteneur et activé par `scripts/setup_keycloak.py`. Le même script règle le realm :
+
+- interface en français ;
+- « Se souvenir de moi » ;
+- protection contre les attaques par force brute : après 5 échecs, le compte est verrouillé 60 s (durée doublée à chaque nouvelle série, 15 min maximum). Le message affiché reste « Identifiant ou mot de passe incorrect » pour ne pas révéler le verrouillage.
+
+En `start-dev`, une modification du thème est visible en rechargeant simplement la page.
+
+> Keycloak ne conserve pas ses données : recréer son conteneur efface les comptes créés via l'inscription (les comptes de démonstration sont recréés par `keycloak-init`).
+
 En environnement distant (serveur Ubuntu partagé), utilisez un tunnel SSH puis ouvrez `http://localhost:4200` depuis votre poste local.
 
 ### Comptes de démonstration
@@ -376,6 +400,7 @@ ztb/
 ├── data/processed/           # Flux réseau de démonstration
 ├── reports/                  # Résultats d'entraînement (métriques, comparaison des modèles)
 ├── blockchain/               # Smart contracts Solidity + Hardhat
+├── keycloak/themes/ztb/      # Thème de la page de connexion Keycloak (même design que le site)
 ├── scripts/                  # Initialisation (Keycloak, identités on-chain) et sniffer réseau
 ├── scenarios/                # Scénarios de test automatisés de bout en bout
 ├── docker/                   # Dockerfiles Python et attaquant de démonstration

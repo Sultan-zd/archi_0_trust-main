@@ -14,6 +14,7 @@ import {
   Me,
   MfaEnrollment,
   MfaStatus,
+  RegistrationRequest,
   NewUser,
   Overview,
   Policy,
@@ -52,6 +53,12 @@ export class ApiService {
 
   checkAccess(resource: string, body: ChargeRequest = {}) {
     return firstValueFrom(this.http.post<Decision>(`${this.base}/access/${encodeURIComponent(resource)}`, this.withRequestProof(body)));
+  }
+
+  // ---------------------------------------------------------------- inscription (publique)
+
+  register(body: RegistrationRequest) {
+    return firstValueFrom(this.http.post<{ username: string; role: string }>(`${this.base}/public/register`, body));
   }
 
   // ---------------------------------------------------------------- MFA de l'utilisateur connecté

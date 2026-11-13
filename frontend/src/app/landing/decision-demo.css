@@ -1,0 +1,70 @@
+:host { display: block; }
+
+.demo {
+  display: grid; grid-template-columns: 1fr 1.05fr; gap: 20px; padding: 12px; border-radius: 28px;
+  background: linear-gradient(180deg, #fff, #f8fafc); border: 1px solid var(--lp-line); box-shadow: var(--lp-shadow-lg);
+}
+
+/* Paramètres */
+.controls { display: flex; flex-direction: column; gap: 22px; padding: 24px; }
+fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
+legend { padding: 0; margin-bottom: 10px; font-size: 13px; font-weight: 600; color: var(--lp-ink-2); }
+.segmented { display: flex; flex-wrap: wrap; gap: 6px; padding: 5px; border-radius: 16px; background: #f1f5f9; }
+.segmented label {
+  position: relative; flex: 1 1 auto; text-align: center; padding: 9px 14px; border-radius: 12px; cursor: pointer;
+  font-size: 14px; font-weight: 500; color: var(--lp-muted); white-space: nowrap;
+  transition: background-color 0.25s, color 0.25s, box-shadow 0.25s;
+}
+.segmented label:hover { color: var(--lp-ink); }
+.segmented label.active { background: #fff; color: var(--lp-ink); font-weight: 600; box-shadow: var(--lp-shadow-sm), 0 0 0 1px rgba(15, 23, 42, 0.05); }
+.segmented input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+.segmented label:has(input:focus-visible) { outline: 2px solid var(--lp-blue); outline-offset: 2px; }
+
+/* Résultat */
+.result {
+  --v: #10b981; --v-soft: #d1fae5; --v-ink: #047857;
+  display: flex; flex-direction: column; gap: 20px; padding: 28px; border-radius: 22px;
+  background: #fff; border: 1px solid var(--lp-line); transition: box-shadow 0.4s;
+  box-shadow: inset 0 0 0 1px transparent, 0 24px 48px -32px var(--v);
+}
+.result[data-verdict='MFA'] { --v: #f59e0b; --v-soft: #fef3c7; --v-ink: #b45309; }
+.result[data-verdict='DENY'] { --v: #ef4444; --v-soft: #fee2e2; --v-ink: #b91c1c; }
+
+.steps { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; color: var(--lp-ink-2); }
+.step { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+.step i { width: 10px; height: 10px; border-radius: 50%; background: #10b981; box-shadow: 0 0 0 4px #d1fae5; transition: background-color 0.3s, box-shadow 0.3s; }
+.step[data-state='warn'] i { background: #f59e0b; box-shadow: 0 0 0 4px #fef3c7; }
+.step[data-state='ko'] i { background: #ef4444; box-shadow: 0 0 0 4px #fee2e2; }
+.link { flex: 1; height: 2px; min-width: 12px; border-radius: 2px; background: linear-gradient(90deg, #cbd5e1 50%, transparent 0) 0 0 / 8px 2px; animation: dash 1s linear infinite; }
+
+.meter { position: relative; width: min(280px, 100%); margin: 0 auto; }
+.meter svg { display: block; width: 100%; fill: none; stroke-width: 16; stroke-linecap: round; }
+.track { stroke: #eef2f7; }
+.value { stroke: var(--v); stroke-dasharray: 100; transition: stroke-dashoffset 0.7s var(--lp-ease), stroke 0.4s; }
+.mark { stroke: #94a3b8; stroke-width: 22; stroke-linecap: butt; opacity: 0.6; }
+.meter-label { position: absolute; inset: auto 0 0; text-align: center; line-height: 1; }
+.meter-label b { display: block; font-size: 56px; font-weight: 750; letter-spacing: -0.05em; font-variant-numeric: tabular-nums; }
+.meter-label span { font-size: 13px; color: var(--lp-muted); }
+
+.outcome-box { display: flex; align-items: flex-start; gap: 14px; padding: 16px; border-radius: 16px; background: var(--v-soft); transition: background-color 0.4s; }
+.pill { padding: 6px 12px; border-radius: 999px; background: #fff; color: var(--v-ink); font-size: 12px; font-weight: 800; letter-spacing: 0.08em; }
+.outcome-box h3 { font-size: 17px; letter-spacing: -0.01em; color: var(--v-ink); }
+.outcome-box p { margin-top: 2px; font-size: 14px; color: var(--lp-ink-2); }
+
+.breakdown { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; font-size: 14px; }
+.breakdown li { display: flex; justify-content: space-between; gap: 12px; padding: 8px 12px; border-radius: 10px; background: #f8fafc; color: var(--lp-ink-2); }
+.breakdown b { font-variant-numeric: tabular-nums; color: var(--lp-ink); }
+.note { font-size: 12.5px; color: var(--lp-muted); }
+.note code { font-size: 12px; background: #f1f5f9; color: var(--lp-ink-2); padding: 1px 6px; border-radius: 6px; }
+
+@keyframes dash { to { background-position: 8px 0; } }
+
+@media (max-width: 900px) {
+  .demo { grid-template-columns: 1fr; }
+  .controls { padding: 16px 12px 4px; }
+  .result { padding: 20px; }
+}
+@media (max-width: 480px) {
+  .segmented label { white-space: normal; }
+  .steps { font-size: 11px; gap: 6px; }
+}

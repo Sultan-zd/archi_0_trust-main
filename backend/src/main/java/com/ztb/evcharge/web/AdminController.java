@@ -4,11 +4,11 @@ import com.ztb.evcharge.client.FastApiClient;
 import com.ztb.evcharge.client.KeycloakAdminClient;
 import com.ztb.evcharge.domain.ChargeStatus;
 import com.ztb.evcharge.repo.ChargeSessionRepository;
+import com.ztb.evcharge.service.AccountService;
 import com.ztb.evcharge.util.Json;
 import com.ztb.evcharge.web.dto.ChargeSessionDto;
 import com.ztb.evcharge.web.dto.NewUserRequest;
 import jakarta.validation.Valid;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,11 +35,14 @@ public class AdminController {
     private final FastApiClient fastApi;
     private final KeycloakAdminClient keycloak;
     private final ChargeSessionRepository sessions;
+    private final AccountService accounts;
 
-    public AdminController(FastApiClient fastApi, KeycloakAdminClient keycloak, ChargeSessionRepository sessions) {
+    public AdminController(FastApiClient fastApi, KeycloakAdminClient keycloak, ChargeSessionRepository sessions,
+                           AccountService accounts) {
         this.fastApi = fastApi;
         this.keycloak = keycloak;
         this.sessions = sessions;
+        this.accounts = accounts;
     }
 
     // ------------------------------------------------------------------ vue d'ensemble
@@ -117,31 +120,7 @@ public class AdminController {
     @PostMapping("/users")
     @ResponseStatus(HttpStatus.CREATED)
     public Map<String, Object> createUser(@Valid @RequestBody NewUserRequest req) {
-        String keycloakId = keycloak.createUser(req.username(), req.email(), req.password(), req.role());
-        Map<String, Object> chainBody = new HashMap<>();
-        chainBody.put("user", req.username());
-        chainBody.put("role", req.role());
-        if (req.homeLocation() != null && !req.homeLocation().isBlank()) {
-            chainBody.put("home_location", req.homeLocation().trim());
-        }
-        Map<String, Object> chain;
-        try {
-            chain = fastApi.addUser(chainBody);
-        } catch (RuntimeException e) {
-            try {
-                keycloak.deleteUser(keycloakId); // compensation : pas de compte sans identite on-chain
-            } catch (RuntimeException ignored) {
-                // la cause d'origine est plus utile que l'echec du nettoyage
-            }
-            throw e;
-        }
-        Map<String, Object> out = new LinkedHashMap<>();
-        out.put("username", req.username());
-        out.put("role", req.role());
-        out.put("keycloakId", keycloakId);
-        out.put("device", chain.get("device"));
-        out.put("txHash", chain.get("tx_hash"));
-        return out;
+        return accounts.create(req.username(), req.email(), req.password(), req.role(), req.homeLocation());
     }
 
     /**

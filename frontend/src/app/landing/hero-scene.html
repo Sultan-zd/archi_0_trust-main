@@ -1,0 +1,79 @@
+<div class="scene" role="img"
+     aria-label="Aperçu de l'application : une demande de recharge sur la borne A à Lyon est autorisée avec un risque de 12 sur 100.">
+  <div class="glow glow-a"></div>
+  <div class="glow glow-b"></div>
+
+  <div class="stage">
+    <div class="floor"></div>
+    <div class="ring ring-a"></div>
+    <div class="ring ring-b"><span class="ring-dot"></span></div>
+
+    <!-- Panneau principal : décision en cours -->
+    <article class="panel">
+      <header class="panel-head">
+        <span class="station-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="4" y="3" width="10" height="18" rx="2" /><path d="M7 7h4" /><path d="m10 11-2 3h3l-2 3" />
+            <path d="M14 9h2a2 2 0 0 1 2 2v5a1.5 1.5 0 0 0 3 0V8l-2-2" />
+          </svg>
+        </span>
+        <div class="station-meta">
+          <b>Borne A · Lyon</b>
+          <span>22 kW · charge rapide</span>
+        </div>
+        <span class="live"><i></i>En direct</span>
+      </header>
+
+      <div class="gauge">
+        <svg viewBox="0 0 200 112" aria-hidden="true">
+          <defs>
+            <linearGradient id="hs-gauge" x1="0" x2="1">
+              <stop offset="0" stop-color="#10B981" /><stop offset="0.5" stop-color="#F59E0B" /><stop offset="1" stop-color="#EF4444" />
+            </linearGradient>
+          </defs>
+          <path class="gauge-track" d="M16 100a84 84 0 0 1 168 0" />
+          <path class="gauge-scale" d="M16 100a84 84 0 0 1 168 0" stroke="url(#hs-gauge)" />
+          <path class="gauge-value" d="M16 100a84 84 0 0 1 168 0" pathLength="100" />
+        </svg>
+        <div class="gauge-label"><b>12</b><span>/100 · risque</span></div>
+      </div>
+
+      <ol class="checks">
+        <li style="--i: 0"><span class="tick"></span><b>Identité vérifiée</b><em>Keycloak</em></li>
+        <li style="--i: 1"><span class="tick"></span><b>Score de l'IA</b><em>12 / 100</em></li>
+        <li style="--i: 2"><span class="tick"></span><b>Politique on-chain</b><em>charge:start</em></li>
+        <li style="--i: 3"><span class="tick"></span><b>Preuve ancrée</b><em>bloc #18 427</em></li>
+      </ol>
+
+      <footer class="panel-foot">
+        <span class="pill allow">ALLOW</span>
+        <div class="charge">
+          <div class="charge-row"><span>Charge en cours</span><b>64 %</b></div>
+          <div class="charge-bar"><i></i></div>
+        </div>
+      </footer>
+    </article>
+
+    <!-- Cartes flottantes -->
+    <div class="tile tile-mfa"><div class="tile-in">
+      <span class="pill mfa">MFA</span>
+      <b>Appareil inconnu</b>
+      <span class="otp"><i>4</i><i>8</i><i>2</i><i>9</i><i>1</i><i>7</i></span>
+    </div></div>
+
+    <div class="tile tile-deny"><div class="tile-in">
+      <span class="pill deny">DENY</span>
+      <b>Attaque bloquée</b>
+      <span class="sub">Flood SYN détecté · risque 95</span>
+    </div></div>
+
+    <div class="tile tile-proof"><div class="tile-in">
+      <span class="cube">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round">
+          <path d="m12 2 9 5v10l-9 5-9-5V7l9-5Z" /><path d="m3 7 9 5 9-5M12 12v10" />
+        </svg>
+      </span>
+      <div><b>Bloc #18 427</b><span class="sub mono">0x9f3a…c21e · intègre</span></div>
+    </div></div>
+  </div>
+</div>

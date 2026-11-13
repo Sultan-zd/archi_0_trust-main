@@ -1,0 +1,49 @@
+<header class="mobile-bar">
+  <a routerLink="/" class="brand"><app-brand-mark [size]="28" /><span>AI-ZTB</span></a>
+  <button type="button" class="icon-btn" (click)="menuOpen.set(!menuOpen())" [attr.aria-expanded]="menuOpen()" aria-controls="app-sidebar" aria-label="Menu">
+    <app-lp-icon [name]="menuOpen() ? 'close' : 'menu'" />
+  </button>
+</header>
+
+@if (menuOpen()) { <div class="scrim" (click)="menuOpen.set(false)" aria-hidden="true"></div> }
+
+<aside id="app-sidebar" class="sidebar" [class.open]="menuOpen()">
+  <a routerLink="/" class="brand sidebar-brand" aria-label="AI-ZTB, page d'accueil">
+    <app-brand-mark [size]="32" />
+    <span class="brand-text"><b>AI-ZTB</b><small>Zero Trust EVSE</small></span>
+  </a>
+
+  <nav class="side-nav" aria-label="Navigation principale">
+    <span class="nav-label">Espace {{ roleLabel().toLowerCase() }}</span>
+    @for (item of nav(); track item.path) {
+      <a [routerLink]="item.path" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: !!item.exact }" class="nav-item">
+        <app-lp-icon [name]="item.icon" />
+        <span>{{ item.label }}</span>
+      </a>
+    }
+    <span class="nav-label">Général</span>
+    <a routerLink="/" class="nav-item"><app-lp-icon name="home" /><span>Page d’accueil</span></a>
+  </nav>
+
+  <div class="side-card">
+    <span class="side-card-icon"><app-lp-icon name="shield" /></span>
+    <p><b>Session Zero Trust</b>Chaque demande est vérifiée et journalisée sur la blockchain.</p>
+  </div>
+
+  <div class="user-card">
+    <span class="avatar" aria-hidden="true">{{ initial() }}</span>
+    <span class="user-meta">
+      <b class="user-name">{{ auth.username() }}</b>
+      <small class="user-role">{{ roleLabel() }}</small>
+    </span>
+    <button type="button" class="icon-btn" (click)="logout()" aria-label="Déconnexion" title="Déconnexion">
+      <app-lp-icon name="logout" />
+    </button>
+  </div>
+</aside>
+
+<main class="content">
+  <div class="content-inner">
+    <router-outlet />
+  </div>
+</main>

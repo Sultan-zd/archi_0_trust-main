@@ -1,0 +1,58 @@
+<div class="demo">
+  <form class="controls" (submit)="$event.preventDefault()" aria-label="Paramètres de la demande simulée">
+    <ng-template #group let-title="title" let-name="name" let-options="options" let-current="current" let-set="set">
+      <fieldset>
+        <legend>{{ title }}</legend>
+        <div class="segmented">
+          @for (o of options; track o.value) {
+            <label [class.active]="current === o.value">
+              <input type="radio" [name]="name" [value]="o.value" [checked]="current === o.value" (change)="set(o.value)" />
+              {{ o.label }}
+            </label>
+          }
+        </div>
+      </fieldset>
+    </ng-template>
+
+    <ng-container *ngTemplateOutlet="group; context: { title: 'Appareil', name: 'device', options: devices, current: device(), set: device.set }" />
+    <ng-container *ngTemplateOutlet="group; context: { title: 'Lieu de la borne', name: 'place', options: places, current: place(), set: place.set }" />
+    <ng-container *ngTemplateOutlet="group; context: { title: 'Trafic réseau', name: 'traffic', options: traffics, current: traffic(), set: traffic.set }" />
+    <ng-container *ngTemplateOutlet="group; context: { title: 'Compte', name: 'account', options: accounts, current: account(), set: account.set }" />
+  </form>
+
+  <div class="result" [attr.data-verdict]="result().verdict" aria-live="polite">
+    <div class="steps">
+      @for (s of steps(); track s.label; let last = $last) {
+        <span class="step" [attr.data-state]="s.state"><i></i>{{ s.label }}</span>
+        @if (!last) { <span class="link"></span> }
+      }
+    </div>
+
+    <div class="meter">
+      <svg viewBox="0 0 200 112" aria-hidden="true">
+        <path class="track" d="M16 100a84 84 0 0 1 168 0" />
+        <path class="value" d="M16 100a84 84 0 0 1 168 0" pathLength="100" [style.stroke-dashoffset]="100 - risk()" />
+        <path class="mark" d="M16 100a84 84 0 0 1 168 0" pathLength="100" stroke-dasharray="0 29.6 0.8 29.2 0.8 100" />
+      </svg>
+      <div class="meter-label">
+        <b>{{ shown() }}</b>
+        <span>/100 · risque</span>
+      </div>
+    </div>
+
+    <div class="outcome-box">
+      <span class="pill">{{ result().verdict }}</span>
+      <div>
+        <h3>{{ result().title }}</h3>
+        <p>{{ result().reason }}</p>
+      </div>
+    </div>
+
+    <ul class="breakdown">
+      @for (c of contributions(); track c.label) {
+        <li><span>{{ c.label }}</span><b>+{{ c.points }}</b></li>
+      }
+    </ul>
+    <p class="note">Simulation pédagogique fondée sur la politique <code>charge:start</code> : vérification dès 30, refus dès 60.</p>
+  </div>
+</div>

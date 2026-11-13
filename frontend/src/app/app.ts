@@ -1,27 +1,11 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
-import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
-import { AuthService } from './auth.service';
-import { DeviceService } from './device.service';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
 
+/** Racine : la page d'accueil publique et l'espace prive (layout/shell) sont deux routes distinctes. */
 @Component({
   selector: 'app-root',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive],
-  templateUrl: './app.html',
-  styleUrl: './app.css',
+  imports: [RouterOutlet],
+  template: '<router-outlet />',
 })
-export class App implements OnInit {
-  protected readonly auth = inject(AuthService);
-  private readonly deviceService = inject(DeviceService);
-
-  ngOnInit(): void {
-    const username = this.auth.username();
-    if (username) {
-//       void this.deviceService.register(username);
-    }
-  }
-
-  protected logout(): void {
-    this.auth.logout();
-  }
-}
+export class App {}

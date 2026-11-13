@@ -39,6 +39,28 @@ if r.status_code == 409:
 else:
     r.raise_for_status()
 
+# 2 bis. Réglages du realm, appliqués à chaque lancement (même si le realm existe déjà)
+print("Réglages du realm (thème, langue, protection brute force)...")
+realm_cfg = requests.get(f"{KEYCLOAK_URL}/admin/realms/{REALM}", headers=headers)
+realm_cfg.raise_for_status()
+realm_cfg = realm_cfg.json()
+realm_cfg.update({
+    "displayName": "AI-ZTB",
+    "loginTheme": "ztb",
+    "internationalizationEnabled": True,
+    "supportedLocales": ["fr"],
+    "defaultLocale": "fr",
+    "rememberMe": True,
+    # Verrouillage temporaire après des échecs répétés (60 s, doublé à chaque nouvelle série, 15 min max).
+    "bruteForceProtected": True,
+    "permanentLockout": False,
+    "failureFactor": 5,
+    "waitIncrementSeconds": 60,
+    "maxFailureWaitSeconds": 900,
+    "maxDeltaTimeSeconds": 43200,
+})
+requests.put(f"{KEYCLOAK_URL}/admin/realms/{REALM}", headers=headers, json=realm_cfg).raise_for_status()
+
 # 3. Créer les rôles
 print("Création des rôles...")
 for role in ["User", "Fleet", "Admin"]:
@@ -67,6 +89,14 @@ if r.status_code == 409:
     print("Client ztb-frontend existe déjà")
 else:
     r.raise_for_status()
+
+# Adresse de l'application : liens « Accueil » et « Créer un compte » de la page de connexion.
+APP_URL = os.getenv("APP_URL", "http://localhost:4200")
+clients = requests.get(f"{KEYCLOAK_URL}/admin/realms/{REALM}/clients", headers=headers, params={"clientId": "ztb-frontend"}).json()
+if clients:
+    frontend = clients[0]
+    frontend.update({"rootUrl": APP_URL, "baseUrl": "/", "name": "AI-ZTB"})
+    requests.put(f"{KEYCLOAK_URL}/admin/realms/{REALM}/clients/{frontend['id']}", headers=headers, json=frontend).raise_for_status()
 
 # 6. Créer les utilisateurs
 print("Création des utilisateurs...")

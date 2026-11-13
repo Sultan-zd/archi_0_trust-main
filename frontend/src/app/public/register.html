@@ -1,0 +1,131 @@
+<div class="page">
+  <!-- ============================================================ Formulaire -->
+  <main class="pane">
+    <header class="top">
+      <a routerLink="/" class="brand" aria-label="AI-ZTB, retour à l'accueil"><app-brand-mark [size]="30" /><span>AI-ZTB</span></a>
+      <a routerLink="/" class="back"><app-lp-icon name="arrow" class="flip" /> Accueil</a>
+    </header>
+
+    <div class="inner">
+      @if (created(); as name) {
+        <!-- ------------------------------------------------ Compte créé -->
+        <section class="done" aria-live="polite">
+          <span class="done-check"><app-lp-icon name="check" /></span>
+          <h1>Bienvenue, {{ name }} !</h1>
+          <p class="sub">Votre compte est créé et votre identité est enregistrée sur la blockchain.</p>
+          <ol class="next">
+            <li><b>1</b><div><strong>Connectez-vous</strong><span>avec l’identifiant et le mot de passe choisis.</span></div></li>
+            <li><b>2</b><div><strong>Activez la MFA</strong><span>en scannant un QR code avec Google ou Microsoft Authenticator.</span></div></li>
+            <li><b>3</b><div><strong>Rechargez</strong><span>chaque demande est vérifiée, chaque décision est prouvée.</span></div></li>
+          </ol>
+          <button type="button" class="lp-btn lp-btn-primary wide" (click)="login()">
+            Se connecter et activer la MFA <app-lp-icon class="lp-arrow" name="arrow" />
+          </button>
+        </section>
+      } @else {
+        <!-- ------------------------------------------------ Formulaire -->
+        <h1>Créez votre compte</h1>
+        <p class="sub">Déjà inscrit ? <button type="button" class="link" (click)="signIn()">Se connecter</button></p>
+
+        @if (error()) { <div class="alert" role="alert"><app-lp-icon name="close" />{{ error() }}</div> }
+
+        <form (submit)="submit($event)" novalidate>
+          <div class="field" [class.invalid]="show('username')">
+            <label for="r-username">Identifiant</label>
+            <input id="r-username" name="username" autocomplete="username" autocapitalize="none" spellcheck="false"
+                   [value]="username()" (input)="onUsername($any($event.target).value)" (blur)="touch('username')"
+                   maxlength="30" placeholder="ex. nina.martin" [attr.aria-invalid]="!!show('username')" aria-describedby="h-username" />
+            <small id="h-username">{{ show('username') || 'Minuscules, chiffres, point, tiret. Il servira à vous connecter.' }}</small>
+          </div>
+
+          <div class="field" [class.invalid]="show('email')">
+            <label for="r-email">Adresse e-mail</label>
+            <input id="r-email" name="email" type="email" autocomplete="email" [value]="email()"
+                   (input)="email.set($any($event.target).value)" (blur)="touch('email')" placeholder="nina@exemple.fr"
+                   [attr.aria-invalid]="!!show('email')" aria-describedby="h-email" />
+            @if (show('email')) { <small id="h-email">{{ show('email') }}</small> }
+          </div>
+
+          <div class="field" [class.invalid]="show('password')">
+            <label for="r-password">Mot de passe</label>
+            <div class="with-action">
+              <input id="r-password" name="password" [type]="showPassword() ? 'text' : 'password'" autocomplete="new-password"
+                     [value]="password()" (input)="password.set($any($event.target).value)" (blur)="touch('password')"
+                     maxlength="128" [attr.aria-invalid]="!!show('password')" aria-describedby="r-rules" />
+              <button type="button" class="reveal" (click)="showPassword.set(!showPassword())"
+                      [attr.aria-label]="showPassword() ? 'Masquer le mot de passe' : 'Afficher le mot de passe'">
+                {{ showPassword() ? 'Masquer' : 'Afficher' }}
+              </button>
+            </div>
+            <div class="meter" [attr.data-level]="strength()" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+            <div class="meter-row">
+              <ul id="r-rules" class="rules">
+                @for (r of rules(); track r.label) {
+                  <li [class.ok]="r.ok"><app-lp-icon [name]="r.ok ? 'check' : 'plus'" />{{ r.label }}</li>
+                }
+              </ul>
+              @if (strength()) { <span class="level">{{ strengthLabel() }}</span> }
+            </div>
+          </div>
+
+          <div class="field" [class.invalid]="show('confirm')">
+            <label for="r-confirm">Confirmer le mot de passe</label>
+            <input id="r-confirm" name="confirm" [type]="showPassword() ? 'text' : 'password'" autocomplete="new-password"
+                   [value]="confirm()" (input)="confirm.set($any($event.target).value)" (blur)="touch('confirm')"
+                   maxlength="128" [attr.aria-invalid]="!!show('confirm')" />
+            @if (show('confirm')) { <small>{{ show('confirm') }}</small> }
+          </div>
+
+          <div class="field">
+            <label for="r-city">Ville habituelle de recharge</label>
+            <select id="r-city" name="city" [value]="city()" (change)="city.set($any($event.target).value)" aria-describedby="h-city">
+              @for (c of cities; track c) { <option [value]="c" [selected]="city() === c">{{ c }}</option> }
+              <option value="" [selected]="city() === ''">Autre / non précisé</option>
+            </select>
+            <small id="h-city">Une recharge loin de cette ville augmente le score de risque.</small>
+          </div>
+
+          <!-- Piège à robots : invisible pour les humains et les lecteurs d'écran. -->
+          <div class="hp" aria-hidden="true">
+            <label for="r-website">Site web</label>
+            <input id="r-website" name="website" tabindex="-1" autocomplete="off" [value]="website()" (input)="website.set($any($event.target).value)" />
+          </div>
+
+          <label class="consent" [class.invalid]="show('terms')">
+            <input type="checkbox" name="terms" [checked]="terms()" (change)="terms.set($any($event.target).checked); touch('terms')" />
+            <span>J’accepte que mes demandes de recharge soient analysées (score de risque) et que les décisions soient
+              journalisées de façon infalsifiable.</span>
+          </label>
+          @if (show('terms')) { <small class="consent-error">{{ show('terms') }}</small> }
+
+          <button type="submit" class="lp-btn lp-btn-primary wide" [disabled]="busy()">
+            @if (busy()) { <span class="spinner" aria-hidden="true"></span> Création du compte… }
+            @else { Créer mon compte <app-lp-icon class="lp-arrow" name="arrow" /> }
+          </button>
+          <p class="fine">Les comptes créés ici ont le rôle Conducteur. Les accès Flotte et Admin sont attribués par un administrateur.</p>
+        </form>
+      }
+    </div>
+  </main>
+
+  <!-- ============================================================ Panneau visuel -->
+  <aside class="visual" aria-hidden="true">
+    <div class="v-glow"></div>
+    <div class="v-grid"></div>
+    <div class="v-content">
+      <span class="v-badge"><i></i> Zero Trust</span>
+      <h2>Chaque recharge vérifiée.<br /><span>Chaque décision prouvée.</span></h2>
+      <ul class="v-steps">
+        <li><span><app-lp-icon name="id" /></span><div><b>Identité</b><small>Keycloak · OpenID Connect</small></div></li>
+        <li><span><app-lp-icon name="qr" /></span><div><b>MFA par QR code</b><small>Votre secret ne quitte pas votre téléphone</small></div></li>
+        <li><span><app-lp-icon name="cpu" /></span><div><b>Score de risque IA</b><small>Calculé à chaque demande</small></div></li>
+        <li><span><app-lp-icon name="ledger" /></span><div><b>Preuve on-chain</b><small>Journal infalsifiable</small></div></li>
+      </ul>
+      <div class="v-card">
+        <span class="v-pill">ALLOW</span>
+        <div><b>Borne A · Lyon</b><small>Risque 12/100 · preuve ancrée</small></div>
+        <app-lp-icon name="shield" />
+      </div>
+    </div>
+  </aside>
+</div>
